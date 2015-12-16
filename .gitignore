@@ -1,0 +1,6 @@
+.DS_Store
+.idea
+TouTiaoBaiJia/*.pyc
+TouTiaoBaiJia/spiders/*.pyc
+TouTiaoBaiJia.log
+*.pyc
