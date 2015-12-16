@@ -60,7 +60,6 @@ class RedisPipeline(object):
         del dict_item["chapter"]
         for key, value in chapter.iteritems():
             dict_item[key] = value
-        print dict_item
         dict_item["tags"] = json.dumps(dict_item["tags"])
         dict_item["images"] = json.dumps(dict_item["images"])
         key = "||".join([dict_item["comic_url"], chapter["chapter_url"]])
