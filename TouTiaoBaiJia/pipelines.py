@@ -70,5 +70,5 @@ class RedisPipeline(object):
         url = "http://api.deeporiginalx.com/bdp/spider/pipeline/comic/" + redis_name
         r = requests.get(url=url)
         if r.status_code != 200:
-            _logger.error("code: %s, key: %s" % (r.status_code, redis_name))
+            _logger.error("code: %s, key: %, conent: %s" % (r.status_code, redis_name, r.content))
         _logger.info(redis_name)
