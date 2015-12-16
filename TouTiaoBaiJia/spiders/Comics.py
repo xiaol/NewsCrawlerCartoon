@@ -4,7 +4,7 @@ from urlparse import urlparse, parse_qs
 import re
 import scrapy
 
-from TouTiaoBaiJia.items import ComicsItem, ChaptersItem
+from TouTiaoBaiJia.items import ComicsItem, ChaptersItem, CommentsItem
 
 
 class ComicsSpider(scrapy.Spider):
@@ -21,10 +21,18 @@ class ComicsSpider(scrapy.Spider):
         "init_data_pattern": re.compile("initData\((\{.*\})"),
         "init_intro_data_pattern": re.compile('"data":(\[.*?\])'),
         "search_pattern": re.compile("search\.renderResult\((.*)\)"),
+        "comment_pattern": re.compile("success_jsonpCallback_201508281031\((.*)\)"),
+        "comment_count_pattern": re.compile("jQuery18204413729028310627_1450254773485\((.*)\)")
     }
     incomplete = 2309
     complete = 2310
     category = [3262, 3263, 3264]
+    comment_request_url = "http://interface.dmzj.com/api/comment/getComment?" \
+                          "callback=success_jsonpCallback_201508281031&type=0" \
+                          "&type_id=%s&cur_page=%s"
+    comment_count_url = "http://interface.dmzj.com/api/comment/commentTotal?" \
+                        "callback=jQuery18204413729028310627_1450254773485" \
+                        "&type=0&type_id=%s"
     ajax_request_url = "http://s.acg.178.com/mh/index.php?c=category" \
                        "&m=doSearch&status=%s&reader_group=%s&zone=0" \
                        "&initial=all&type=0&p=%s&callback=search.renderResult"
@@ -38,6 +46,7 @@ class ComicsSpider(scrapy.Spider):
         result = data["result"]
         for r in result:
             comic = ComicsItem()
+            comic["comic_id"] = r["id"]
             comic["pub_status"] = 1
             comic["name"] = r["name"]
             comic["author"] = r["author"]
@@ -170,7 +179,55 @@ class ComicsSpider(scrapy.Spider):
             data = None
         return data
 
-    @staticmethod
-    def get_mobile_header():
-        pass
+    def crawl_comment(self, type_id, comic_url):
+        yield scrapy.Request(
+            self.comment_count_url % type_id,
+            callback=self.parse_comment_count,
+            meta={"type_id": type_id, "mobile": 1, "comic_url": comic_url}
+        )
+
+    def parse_comment_count(self, response):
+        type_id = response.meta["type_id"]
+        comic_url = response.meta["comic_url"]
+        data = self.re_load_data(response, "comment_count_pattern")
+        try:
+            count = int(data["page_data"])
+        except Exception:
+            return
+        pages = (count + 9) / 10
+        for page in range(1, pages+1):
+            yield scrapy.Request(
+                self.comment_request_url % (type_id, page),
+                callback=self.parse_comment,
+                meta={"type_id": type_id, "mobile": 1, "comic_url": comic_url}
+            )
+
+    def parse_comment(self, response):
+        comic_url = response.meta["comic_url"]
+        data = self.re_load_data(response, "comment_pattern")
+        if data is None:
+            return
+        comments = data["data"]
+        for comment in comments:
+            item = CommentsItem()
+            item["comic_url"] = comic_url
+            item["id"] = comment["id"]
+            item["uid"] = comment["uid"]
+            item["nickname"] = comment["nickname"]
+            item["avatar_url"] = comment["avatar_url"]
+            item["pid"] = comment["pid"]
+            item["comic_id"] = comment["comic_id"]
+            item["author_id"] = comment["author_id"]
+            item["author"] = comment["author"]
+            item["content"] = comment["content"]
+            item["createtime"] = comment["createtime"]
+            item["count_reply"] = comment["count_reply"]
+            item["up"] = comment["up"]
+            item["source"] = comment["source"]
+            item["place"] = comment["place"]
+            item["ip"] = comment["ip"]
+            item["source_name"] = comment["source_name"]
+            if item["count_reply"] != 0:
+                item["reply"] = comment["reply"]["data"]
+            yield item
 

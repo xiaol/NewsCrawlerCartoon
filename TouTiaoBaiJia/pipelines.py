@@ -30,6 +30,7 @@ class RedisPipeline(object):
     def process_item(self, item, spider):
         dict_item = dict(item)
         chapter = dict_item["chapter"]
+        del dict_item["comic_id"]
         del dict_item["chapter"]
         for key, value in chapter.iteritems():
             dict_item[key] = value

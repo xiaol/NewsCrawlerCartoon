@@ -9,6 +9,7 @@ import scrapy
 
 
 class ComicsItem(scrapy.Item):
+    comic_id = scrapy.Field()   # comic id for crawl comment
     comic_url = scrapy.Field()
     pub_status = scrapy.Field()     # 1: 已完结, 0: 未完结
     download_url = scrapy.Field()
@@ -33,3 +34,24 @@ class ChaptersItem(scrapy.Item):
     chapter_url = scrapy.Field()
     name = scrapy.Field()
     images = scrapy.Field()
+
+
+class CommentsItem(scrapy.Item):
+    comic_url = scrapy.Field()
+    id = scrapy.Field()
+    uid = scrapy.Field()
+    nickname = scrapy.Field()
+    avatar_url = scrapy.Field()
+    pid = scrapy.Field()
+    comic_id = scrapy.Field()
+    author_id = scrapy.Field()
+    author = scrapy.Field()
+    content = scrapy.Field()
+    createtime = scrapy.Field()
+    count_reply = scrapy.Field()
+    up = scrapy.Field()
+    source = scrapy.Field()
+    place = scrapy.Field()
+    ip = scrapy.Field()
+    source_name = scrapy.Field()
+    reply = scrapy.Field()

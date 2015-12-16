@@ -15,3 +15,61 @@ terms:
 11. 人气(2149210)
 12. 漫画简介文字(光速蒙面侠21漫画 ，小早川濑那是个胆小因循守旧的高中一年级学生。自小就为了躲避被人欺负，一味地过着遁行的人生。成天被人点去买饮买食，不知不觉间练就了一副好身手（指跑步），甚至用4秒2跑出40码的世界纪录（当被狗追时）。进入高中后，濑那决意改变自己、决心加入美式足球部担任经理，期待着新生活的来临...但是，濑那由逃跑而练就出来的跑步，吸引了美式足球部的队长蛭魔妖一（ヒル魔）的眼光。因为强悍和卑劣的手段而声名远播的ヒル魔，准备训练濑那成为背号21的神秘光速之脚际遇了美式足球，濑那能改变以往的自己吗……)
 13. 漫画内容
+
+评论格式:
+ {
+    "id": 358835,
+    "uid": 9451084,
+    "nickname": "a5837658",
+    "avatar_url": "http://images.dmzj.com/user/8e/1d/8e1d9d717bfc6123398d5c36a2462e41.png",
+    "pid": 0,
+    "comic_id": 25762,
+    "author_id": 0,
+    "author": "",
+    "content": "卧槽 大学生还能被小学生给绑架了 就算拿着小刀随便一甩就可以轻松推开的吧。",
+    "createtime": 1450107766,
+    "count_reply": 2,
+    "up": 5,
+    "source": 0,
+    "place": "广西桂林市",
+    "ip": "116.1.85.6",
+    "source_name": "",
+    "reply": {
+        "data": [
+            {
+                "id": 358916,
+                "uid": 100596013,
+                "nickname": "FFF团驻SOX教外交大使",
+                "avatar_url": "http://images.dmzj.com/user/c6/74/c674879da9e1d444d136b323109eb024.png",
+                "pid": 358835,
+                "comic_id": 25762,
+                "author_id": 0,
+                "author": "",
+                "content": "做事不想想后果",
+                "createtime": 1450166374,
+                "count_reply": 0,
+                "up": 0,
+                "source": 0,
+                "place": "",
+                "source_name": ""
+            },
+            {
+                "id": 358846,
+                "uid": 10167186,
+                "nickname": "我只是无聊人一个！！",
+                "avatar_url": "http://images.dmzj.com/user/f1/91/f191f5cdb055d67350a319bae1e03cbb.png",
+                "pid": 358835,
+                "comic_id": 25762,
+                "author_id": 9451084,
+                "author": "a5837658",
+                "content": "回复 @a5837658:注孤生！！",
+                "createtime": 1450110168,
+                "count_reply": 0,
+                "up": 0,
+                "source": 0,
+                "place": "广东省广州市",
+                "source_name": ""
+            }
+        ]
+    }
+},
