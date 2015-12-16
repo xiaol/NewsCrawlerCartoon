@@ -24,7 +24,7 @@ NEWSPIDER_MODULE = 'TouTiaoBaiJia.spiders'
 # Configure a delay for requests for the same website (default: 0)
 # See http://scrapy.readthedocs.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY = 2
+DOWNLOAD_DELAY = 0.5
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN=16
 #CONCURRENT_REQUESTS_PER_IP=16
@@ -67,7 +67,8 @@ DOWNLOAD_HANDLERS = {'s3': None}
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     # 'scrapy.pipelines.images.ImagesPipeline': 1,
-    'TouTiaoBaiJia.pipelines.RedisPipeline': 400,
+    'TouTiaoBaiJia.pipelines.DebugPipeline': 500,
+    # 'TouTiaoBaiJia.pipelines.RedisPipeline': 400,
 }
 # IMAGES_STORE = "/Users/lee/work/downloads/comics"
 
@@ -106,3 +107,6 @@ REDIS_HOST = "ccd827d637514872.m.cnhza.kvstore.aliyuncs.com"
 REDIS_PORT = 6379
 REDIS_DB = 0
 REDIS_PASSWORD = "ccd827d637514872:LYcache2015"
+
+CRAWL_COMICS = False
+CRAWL_COMMENTS = True

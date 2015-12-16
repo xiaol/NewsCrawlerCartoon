@@ -11,9 +11,24 @@ import base64
 import redis
 import requests
 
+from TouTiaoBaiJia.items import ComicsItem, CommentsItem
 from settings import REDIS_HOST, REDIS_PORT, REDIS_DB, REDIS_PASSWORD
 
 _logger = logging.getLogger(__name__)
+
+
+class DebugPipeline(object):
+
+    def __int__(self):
+        pass
+
+    def process_item(self, item, spider):
+        if isinstance(item, ComicsItem):
+            print item
+        elif isinstance(item, CommentsItem):
+            print item
+        else:
+            pass
 
 
 class RedisPipeline(object):

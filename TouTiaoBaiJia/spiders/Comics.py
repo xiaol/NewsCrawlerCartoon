@@ -5,6 +5,7 @@ import re
 import scrapy
 
 from TouTiaoBaiJia.items import ComicsItem, ChaptersItem, CommentsItem
+from TouTiaoBaiJia.settings import CRAWL_COMICS, CRAWL_COMMENTS
 
 
 class ComicsSpider(scrapy.Spider):
@@ -38,6 +39,13 @@ class ComicsSpider(scrapy.Spider):
                        "&initial=all&type=0&p=%s&callback=search.renderResult"
     start_urls = tuple([ajax_request_url % (complete, c, 1) for c in category])
 
+    def start_requests(self):
+        headers = {"Host": "s.acg.178.com",
+                   "Referer": "http://manhua.dmzj.com/tags/category_search"
+                              "/0-0-0-all-0-0-0-1.shtml"}
+        return [scrapy.Request(url, callback=self.parse, headers=headers)
+                for url in self.start_urls]
+
     def parse(self, response):
         """ parse http://manhua.dmzj.com """
         data = self.re_load_data(response, "search_pattern")
@@ -58,18 +66,32 @@ class ComicsSpider(scrapy.Spider):
                 m_d_url = self.m_index + urlparse(r["comic_url"]).path
                 comic["download_url"] = m_d_url
                 comic["comic_url"] = m_d_url
-                yield scrapy.Request(comic["download_url"],
-                                     callback=self.parse_m_info,
-                                     meta={"comic": comic,
-                                           "mobile": 1})
+                mobile = True
             else:
                 m_d_url = self.m_info + r["comic_url"][:-1] + ".html"
                 comic["comic_url"] = m_d_url
                 pc_d_url = self.pc_index + r["comic_url"]
                 comic["download_url"] = pc_d_url
+                mobile = False
+            if CRAWL_COMICS:
+                if mobile:
+                    callback = self.parse_m_info
+                    meta = {"comic": comic, "mobile": 1}
+                else:
+                    callback = self.parse_detail_default
+                    meta = {"comic": comic}
                 yield scrapy.Request(comic["download_url"],
-                                     callback=self.parse_detail_default,
-                                     meta={"comic": comic})
+                                     callback=callback,
+                                     meta=meta)
+            if CRAWL_COMMENTS:
+                yield scrapy.Request(
+                    self.comment_count_url % comic["comic_id"],
+                    callback=self.parse_comment_count,
+                    meta={"type_id": comic["comic_id"],
+                          "mobile": 1,
+                          "comic_url": comic["comic_url"]}
+                )
+
         if "type=0&p=1&callback" in response.request.url:
             pages = int(data["page_count"])
             reader_group = parse_qs(
@@ -178,13 +200,6 @@ class ComicsSpider(scrapy.Spider):
         except Exception:
             data = None
         return data
-
-    def crawl_comment(self, type_id, comic_url):
-        yield scrapy.Request(
-            self.comment_count_url % type_id,
-            callback=self.parse_comment_count,
-            meta={"type_id": type_id, "mobile": 1, "comic_url": comic_url}
-        )
 
     def parse_comment_count(self, response):
         type_id = response.meta["type_id"]
