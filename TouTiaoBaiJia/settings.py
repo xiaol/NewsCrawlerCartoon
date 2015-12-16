@@ -24,7 +24,7 @@ NEWSPIDER_MODULE = 'TouTiaoBaiJia.spiders'
 # Configure a delay for requests for the same website (default: 0)
 # See http://scrapy.readthedocs.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY = 0.2
+DOWNLOAD_DELAY = 2
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN=16
 #CONCURRENT_REQUESTS_PER_IP=16
@@ -101,3 +101,8 @@ ITEM_PIPELINES = {
 
 LOG_FILE = "./TouTiaoBaiJia.log"
 # LOG_LEVEL = "WARNING"
+
+REDIS_HOST = "ccd827d637514872.m.cnhza.kvstore.aliyuncs.com"
+REDIS_PORT = 6379
+REDIS_DB = 0
+REDIS_PASSWORD = "ccd827d637514872:LYcache2015"
