@@ -38,7 +38,7 @@ class ChaptersItem(scrapy.Item):
 
 class CommentsItem(scrapy.Item):
     comic_url = scrapy.Field()
-    id = scrapy.Field()
+    comment_id = scrapy.Field()
     uid = scrapy.Field()
     nickname = scrapy.Field()
     avatar_url = scrapy.Field()
@@ -54,4 +54,3 @@ class CommentsItem(scrapy.Item):
     place = scrapy.Field()
     ip = scrapy.Field()
     source_name = scrapy.Field()
-    reply = scrapy.Field()

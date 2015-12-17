@@ -19,16 +19,47 @@ _logger = logging.getLogger(__name__)
 
 class DebugPipeline(object):
 
-    def __int__(self):
-        pass
+    from settings import POSTGRES
+    from sqlalchemy.ext.automap import automap_base
+    from sqlalchemy.orm import Session
+    from sqlalchemy import create_engine
+    Base = automap_base()
+    engine = create_engine(POSTGRES)
+    Base.prepare(engine, reflect=True)
+    Comics = Base.classes.comics
+    Chapters = Base.classes.chapters
+    Comments = Base.classes.comments
+    session = Session(engine)
+
+    def __init__(self):
+        self.comics_urls = set(self.session.query(self.Comics.comic_url).all())
 
     def process_item(self, item, spider):
         if isinstance(item, ComicsItem):
-            print item
+            self.store_chapters(item, spider)
         elif isinstance(item, CommentsItem):
-            print item
+            self.store_comments(item, spider)
         else:
-            pass
+            _logger.error("not support this item %s" % type(item))
+
+    def store_chapters(self, item, spider):
+        comic = dict(item)
+        chapter = comic["chapter"]
+        if comic["comic_url"] not in self.comics_urls:
+            self.comics_urls.add(comic["comic_url"])
+            del comic["chapter"]
+            self.session.add(self.Comics(**comic))
+            self.session.commit()
+            _logger.info("insert comic %s" % comic["name"])
+        self.session.add(self.Chapters(**chapter))
+        self.session.commit()
+        _logger.info("insert chapter %s %s" % (comic["name"], chapter["name"]))
+
+    def store_comments(self, item, spider):
+        comment = dict(item)
+        self.session.add(self.Comments(**comment))
+        self.session.commit()
+        _logger.info("insert comment %s" % comment["nickname"])
 
 
 class RedisPipeline(object):
@@ -58,6 +89,6 @@ class RedisPipeline(object):
         self.r.expire(redis_name, 7*24*60*60)
         r = requests.get(url=self.comic_url+redis_name)
         if r.status_code != 200:
-            _logger.error("code: %s, key: %, conent: %s" % (r.status_code, redis_name, str(r.content)))
+            _logger.error("code: %s, key: %" % (r.status_code, redis_name))
         else:
             _logger.info(redis_name)

@@ -100,13 +100,16 @@ ITEM_PIPELINES = {
 #     'jsonlines': 'scrapy.exporters.JsonLinesItemExporter',
 # }
 
-LOG_FILE = "./TouTiaoBaiJia.log"
-# LOG_LEVEL = "WARNING"
+# LOG_FILE = "./TouTiaoBaiJia.log"
+LOG_LEVEL = "INFO"
 
 REDIS_HOST = "ccd827d637514872.m.cnhza.kvstore.aliyuncs.com"
 REDIS_PORT = 6379
 REDIS_DB = 0
 REDIS_PASSWORD = "ccd827d637514872:LYcache2015"
 
-CRAWL_COMICS = False
+POSTGRES = "postgresql://postgres:lee@localhost/test"
+
+CRAWL_COMICS = True
 CRAWL_COMMENTS = True
+

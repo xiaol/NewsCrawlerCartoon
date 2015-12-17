@@ -54,7 +54,7 @@ class ComicsSpider(scrapy.Spider):
         result = data["result"]
         for r in result:
             comic = ComicsItem()
-            comic["comic_id"] = r["id"]
+            comic["comic_id"] = int(r["id"])
             comic["pub_status"] = 1
             comic["name"] = r["name"]
             comic["author"] = r["author"]
@@ -224,25 +224,35 @@ class ComicsSpider(scrapy.Spider):
             return
         comments = data["data"]
         for comment in comments:
-            item = CommentsItem()
-            item["comic_url"] = comic_url
-            item["id"] = comment["id"]
-            item["uid"] = comment["uid"]
-            item["nickname"] = comment["nickname"]
-            item["avatar_url"] = comment["avatar_url"]
-            item["pid"] = comment["pid"]
-            item["comic_id"] = comment["comic_id"]
-            item["author_id"] = comment["author_id"]
-            item["author"] = comment["author"]
-            item["content"] = comment["content"]
-            item["createtime"] = comment["createtime"]
-            item["count_reply"] = comment["count_reply"]
-            item["up"] = comment["up"]
-            item["source"] = comment["source"]
-            item["place"] = comment["place"]
-            item["ip"] = comment["ip"]
-            item["source_name"] = comment["source_name"]
-            if item["count_reply"] != 0:
-                item["reply"] = comment["reply"]["data"]
+            item = self.build_comment_item(comment, comic_url)
             yield item
+            if item["count_reply"] != 0:
+                for d in comment["reply"]["data"]:
+                    item = self.build_comment_item(d, comic_url)
+                    yield item
+
+    @staticmethod
+    def build_comment_item(comment, comic_url):
+        item = CommentsItem()
+        item["comic_url"] = comic_url
+        item["comment_id"] = comment["id"]
+        item["uid"] = comment["uid"]
+        item["nickname"] = comment["nickname"]
+        item["avatar_url"] = comment["avatar_url"]
+        item["pid"] = comment["pid"]
+        item["comic_id"] = comment["comic_id"]
+        item["author_id"] = comment["author_id"]
+        item["author"] = comment["author"]
+        item["content"] = comment["content"]
+        item["createtime"] = comment["createtime"]
+        item["count_reply"] = comment["count_reply"]
+        item["up"] = comment["up"]
+        item["source"] = comment["source"]
+        item["place"] = comment["place"]
+        if "ip" in comment:
+            item["ip"] = comment["ip"]
+        else:
+            item["ip"] = ""
+        item["source_name"] = comment["source_name"]
+        return item
 
