@@ -36,13 +36,13 @@ class DebugPipeline(object):
 
     def process_item(self, item, spider):
         if isinstance(item, ComicsItem):
-            self.store_chapters(item, spider)
+            self.store_chapters(item)
         elif isinstance(item, CommentsItem):
-            self.store_comments(item, spider)
+            self.store_comments(item)
         else:
             _logger.error("not support this item %s" % type(item))
 
-    def store_chapters(self, item, spider):
+    def store_chapters(self, item):
         comic = dict(item)
         chapter = comic["chapter"]
         if comic["comic_url"] not in self.comics_urls:
@@ -55,7 +55,7 @@ class DebugPipeline(object):
         self.session.commit()
         _logger.info("insert chapter %s %s" % (comic["name"], chapter["name"]))
 
-    def store_comments(self, item, spider):
+    def store_comments(self, item):
         comment = dict(item)
         self.session.add(self.Comments(**comment))
         self.session.commit()
@@ -65,6 +65,7 @@ class DebugPipeline(object):
 class RedisPipeline(object):
 
     comic_url = "http://api.deeporiginalx.com/bdp/spider/pipeline/comic/"
+    comment_url = "http://api.deeporiginalx.com/bdp/comic/comment"
 
     def __init__(self):
         host = REDIS_HOST
@@ -74,9 +75,16 @@ class RedisPipeline(object):
         self.r = redis.Redis(host=host, port=port, db=db, password=password)
 
     def process_item(self, item, spider):
+        if isinstance(item, ComicsItem):
+            self.store_chapters(item)
+        elif isinstance(item, CommentsItem):
+            self.store_comments(item)
+        else:
+            _logger.error("not support this item" % type(item))
+
+    def store_chapters(self, item):
         dict_item = dict(item)
         chapter = dict_item["chapter"]
-        del dict_item["comic_id"]
         del dict_item["chapter"]
         for key, value in chapter.iteritems():
             dict_item[key] = value
@@ -92,3 +100,28 @@ class RedisPipeline(object):
             _logger.error("code: %s, key: %" % (r.status_code, redis_name))
         else:
             _logger.info(redis_name)
+
+    def store_comments(self, item):
+        comment = dict()
+        comment["comicUrl"] = item["comic_url"]
+        comment["commentId"] = item["comment_id"]
+        comment["uid"] = item["uid"]
+        comment["nickName"] = item["nickname"]
+        comment["avatarUrl"] = item["avatar_url"]
+        comment["pid"] = item["pid"]
+        comment["comicId"] = item["comic_id"]
+        comment["authorId"] = item["author_id"]
+        comment["author"] = item["author"]
+        comment["content"] = item["content"]
+        comment["createTime"] = item["createtime"]
+        comment["countReply"] = item["count_reply"]
+        comment["up"] = item["up"]
+        comment["source"] = item["source"]
+        comment["place"] = item["place"]
+        comment["ip"] = item["ip"]
+        comment["sourceName"] = item["source_name"]
+        r = requests.post(url=self.comment_url, json=comment)
+        if r.status_code != 200:
+            _logger.error("code: %s, %s" % (r.status_code, item["nickname"]))
+        else:
+            _logger.info("insert comment: %s" % item["nickname"])
