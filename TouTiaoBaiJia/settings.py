@@ -67,8 +67,8 @@ DOWNLOAD_HANDLERS = {'s3': None}
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     # 'scrapy.pipelines.images.ImagesPipeline': 1,
-    # 'TouTiaoBaiJia.pipelines.DebugPipeline': 500,
-    'TouTiaoBaiJia.pipelines.RedisPipeline': 400,
+    'TouTiaoBaiJia.pipelines.DebugPipeline': 500,
+    # 'TouTiaoBaiJia.pipelines.RedisPipeline': 400,
 }
 # IMAGES_STORE = "/Users/lee/work/downloads/comics"
 
@@ -100,13 +100,13 @@ ITEM_PIPELINES = {
 #     'jsonlines': 'scrapy.exporters.JsonLinesItemExporter',
 # }
 
-LOG_FILE = "./TouTiaoBaiJia.log"
+LOG_FILE = "TouTiaoBaiJia.log"
 LOG_LEVEL = "INFO"
 
-REDIS_HOST = "ccd827d637514872.m.cnhza.kvstore.aliyuncs.com"
-REDIS_PORT = 6379
-REDIS_DB = 0
-REDIS_PASSWORD = "ccd827d637514872:LYcache2015"
+# REDIS_HOST = "ccd827d637514872.m.cnhza.kvstore.aliyuncs.com"
+# REDIS_PORT = 6379
+# REDIS_DB = 0
+# REDIS_PASSWORD = "ccd827d637514872:LYcache2015"
 
 # POSTGRES = "postgresql://postgres:lee@localhost/test"
 

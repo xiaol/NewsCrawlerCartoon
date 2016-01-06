@@ -127,7 +127,7 @@ class ComicsSpider(scrapy.Spider):
             chapter["chapter_url"] = "/".join([self.m_view,
                                                str(d["comic_id"]),
                                                str(d["id"])+".html"])
-            chapter["name"] = d["chapter_name"]
+            chapter["chapter_name"] = d["chapter_name"]
             chapter["chapter_order"] = d["chapter_order"]
             chapters.append(chapter)
         for chapter in chapters:

@@ -27,13 +27,17 @@ class ComicsItem(scrapy.Item):
     chapter_num = scrapy.Field()
     chapter = scrapy.Field()
 
+    mobile = scrapy.Field()     # use mobile user agent or not
+
 
 class ChaptersItem(scrapy.Item):
     comic_url = scrapy.Field()
     chapter_order = scrapy.Field()
     chapter_url = scrapy.Field()
-    name = scrapy.Field()
+    chapter_name = scrapy.Field()   # move name to chapter_name
     images = scrapy.Field()
+
+    comic = scrapy.Field()  # add comic meta info
 
 
 class CommentsItem(scrapy.Item):
