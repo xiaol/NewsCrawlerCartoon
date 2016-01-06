@@ -3,6 +3,7 @@ from urlparse import urlparse, parse_qs
 import re
 import logging
 
+from utils import rds
 from TouTiaoBaiJia.items import ComicsItem, ChaptersItem
 from TouTiaoBaiJia.constants import M_DOMAIN, M_DOMAIN_INFO, M_DOMAIN_VIEW
 from TouTiaoBaiJia.constants import DOMAIN, ABNORMAL_DOMAIN
@@ -30,6 +31,7 @@ def re_load_data(body, key):
 
 
 def parse_meta_info(response):
+    cache = rds
     comics = list()
     data = re_load_data(response.body_as_unicode(), "search")
     if data is None:
@@ -38,6 +40,8 @@ def parse_meta_info(response):
     elif data["status"] != "OK":
         return comics, 0
     results = data["result"]
+    p = int(data["page_count"])
+    page = p
     for r in results:
         comic = ComicsItem()
         comic["comic_id"] = int(r["id"])
@@ -57,8 +61,16 @@ def parse_meta_info(response):
             comic["comic_url"] = mobile_url
             comic["download_url"] = DOMAIN + url
             comic["mobile"] = False
-        comics.append(comic)
-    page = int(data["page_count"])
+        status = cache.hget(comic["comic_url"], "pub_status")
+        if status == "1":
+            page = 0    # if already crawled in cache
+            print("url: %s alread in crawled" % comic["comic_url"])
+        else:
+            page = p
+            comics.append(comic)
+            cache_comic = dict(comic)
+            cache_comic["tags"] = json.dumps(cache_comic["tags"])
+            cache.hmset(comic["comic_url"], cache_comic)
     return comics, page
 
 

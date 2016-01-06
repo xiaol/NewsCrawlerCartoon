@@ -12,6 +12,7 @@ import redis
 import requests
 
 from TouTiaoBaiJia.items import ComicsItem, CommentsItem
+from utils import rds
 # from settings import REDIS_HOST, REDIS_PORT, REDIS_DB, REDIS_PASSWORD
 
 _logger = logging.getLogger(__name__)
@@ -130,5 +131,18 @@ _logger = logging.getLogger(__name__)
 class DebugPipeline(object):
 
     def process_item(self, item, spider):
-        print("name: %s, chapter: %s, images: %s" %
-              (item["comic"]["name"], item["chapter_name"], len(item["images"])))
+        cache = rds
+        chapter = dict(item)
+        comic = chapter["comic"]
+        comic["tags"] = json.dumps(comic["tags"])
+        chapter["images"] = json.dumps(chapter["images"])
+        del chapter["comic"]
+        for key, value in comic:
+            chapter[key] = value
+        if not cache.exists(comic["comic_url"]):
+            cache.hmset(comic["comic_url"], comic)
+        print("name: %s, chapter: %s" %
+              (comic["name"], chapter["chapter_name"]))
+
+
+

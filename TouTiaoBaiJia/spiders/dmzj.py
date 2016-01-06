@@ -40,7 +40,6 @@ class DMZJSpider(scrapy.Spider):
             comic["popularity"] = json.loads(response.body)["hot_hits"]
         except:
             pass
-        print("name: %s, popularity: %s" % (comic["name"], comic["popularity"]))
         yield scrapy.Request(comic["comic_url"],
                              callback=self.parse_comic,
                              meta={"comic": comic, "mobile": 1})
@@ -48,7 +47,6 @@ class DMZJSpider(scrapy.Spider):
     def parse_comic(self, response):
         chapters = parse_comic_mobile(response)
         for chapter in chapters:
-            print("name: %s, chapter: %s" % (chapter["comic"]["name"], chapter["chapter_name"]))
             yield scrapy.Request(chapter["chapter_url"],
                                  callback=self.parse_chapter,
                                  meta={"chapter": chapter, "mobile": 1})
