@@ -100,7 +100,7 @@ ITEM_PIPELINES = {
 #     'jsonlines': 'scrapy.exporters.JsonLinesItemExporter',
 # }
 
-LOG_FILE = "TouTiaoBaiJia.log"
+# LOG_FILE = "TouTiaoBaiJia.log"
 LOG_LEVEL = "INFO"
 
 # REDIS_HOST = "ccd827d637514872.m.cnhza.kvstore.aliyuncs.com"

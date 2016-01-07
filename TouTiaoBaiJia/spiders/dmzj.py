@@ -2,63 +2,70 @@ import json
 import logging
 from urlparse import urlparse, parse_qs
 import scrapy
+from scrapy_redis import spiders
 
-from TouTiaoBaiJia.constants import HIT, STATIC_HIT
+from TouTiaoBaiJia.constants import COMIC_SPIDER_NAME
+from TouTiaoBaiJia.constants import CHAPTER_SPIDER_NAME
+from TouTiaoBaiJia.constants import COMMENT_SPIDER_NAME
 from TouTiaoBaiJia.extract import parse_meta_info, parse_comic_mobile
 from TouTiaoBaiJia.extract import re_load_data
-from TouTiaoBaiJia.constants import CATEGORY, STATUS
-from TouTiaoBaiJia.url_factory import g_start_url
+from TouTiaoBaiJia.items import ComicsList
+from TouTiaoBaiJia.utils import rds
 
 _logger = logging.getLogger(__name__)
 
 
-class DMZJSpider(scrapy.Spider):
-    name = "Spider_DMZJ_Comics"
-    start_urls = map(g_start_url, [STATUS["complete"]]*3,
-                     CATEGORY.values(), [1]*3)
+class ComicSpider(spiders.RedisSpider):
+
+    name = COMIC_SPIDER_NAME
 
     def parse(self, response):
+        comic_list = ComicsList()
         parse_query = parse_qs(urlparse(response.request.url).query)
-        p = int(parse_query["p"][0])
+        current_page = int(parse_query["p"][0])
         group = parse_query["reader_group"][0]
-        comics, page = parse_meta_info(response)
-        print("page: %s" % p)
-        for comic in comics:
-            print("name: %s, comic: %s" % (comic["name"], comic["comic_url"]))
-            url = STATIC_HIT if comic["mobile"] else HIT
-            url = url % comic["comic_id"]
-            yield scrapy.Request(url,
-                                 callback=self.parse_popularity,
-                                 meta={"comic": comic})
-        if p <= page:
-            url = g_start_url(STATUS["complete"], group, p+1)
-            yield scrapy.Request(url, callback=self.parse)
+        status = int(parse_query["status"][0])
+        comics, total_page = parse_meta_info(response)
+        comic_list["total_page"] = total_page
+        comic_list["current_page"] = current_page
+        comic_list["group"] = group
+        comic_list["status"] = status
+        comic_list["comics"] = comics
+        yield comic_list
 
-    def parse_popularity(self, response):
-        comic = response.meta["comic"]
-        try:
-            comic["popularity"] = json.loads(response.body)["hot_hits"]
-        except:
-            pass
-        yield scrapy.Request(comic["comic_url"],
-                             callback=self.parse_comic,
-                             meta={"comic": comic, "mobile": 1})
 
-    def parse_comic(self, response):
-        chapters = parse_comic_mobile(response)
+class ChapterSpider(spiders.RedisSpider):
+
+    name = CHAPTER_SPIDER_NAME
+
+    def parse(self, response):
+        detail = parse_comic_mobile(response)
+        chapters = detail["chapters"]
+        detail_dict = dict(detail)
+        del detail_dict["chapters"]
+        detail_dict["last_chapter_url"] = chapters[0]["chapter_url"]
+        if not rds.exists(detail_dict["comic_url"]):
+            _logger.error("comic url changed: %s" % detail_dict["comic_url"])
+            return
+        rds.hmset(detail_dict["comic_url"], detail_dict)
         for chapter in chapters:
             yield scrapy.Request(chapter["chapter_url"],
                                  callback=self.parse_chapter,
-                                 meta={"chapter": chapter, "mobile": 1})
+                                 meta={"chapter": chapter})
 
     def parse_chapter(self, response):
         data = re_load_data(response.body_as_unicode(), "init_data")
         if data is None:
             return
         chapter = response.meta["chapter"]
-        chapter["images"] = data["page_url"]
+        chapter["images"] = json.dumps(data["page_url"])
         yield chapter
 
 
+class CommentSpider(spiders.RedisSpider):
 
+    name = COMMENT_SPIDER_NAME
+
+    def parse(self, response):
+        pass
 

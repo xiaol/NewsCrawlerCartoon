@@ -8,6 +8,23 @@
 import scrapy
 
 
+class ComicsList(scrapy.Item):
+    total_page = scrapy.Field()
+    current_page = scrapy.Field()
+    group = scrapy.Field()
+    status = scrapy.Field()
+    comics = scrapy.Field()
+
+
+class ComicsDetail(scrapy.Item):
+    comic_url = scrapy.Field()
+    summary = scrapy.Field()
+    area_location = scrapy.Field()
+    category = scrapy.Field()
+    chapter_num = scrapy.Field()
+    chapters = scrapy.Field()
+
+
 class ComicsItem(scrapy.Item):
     comic_id = scrapy.Field()   # comic id for crawl comment
     comic_url = scrapy.Field()
@@ -28,6 +45,7 @@ class ComicsItem(scrapy.Item):
     chapter = scrapy.Field()
 
     mobile = scrapy.Field()     # use mobile user agent or not
+    last_chapter_url = scrapy.Field()   # last chapter url
 
 
 class ChaptersItem(scrapy.Item):
@@ -38,6 +56,11 @@ class ChaptersItem(scrapy.Item):
     images = scrapy.Field()
 
     comic = scrapy.Field()  # add comic meta info
+
+
+class ImagesItem(scrapy.Item):
+    chapter_url = scrapy.Field()
+    images = scrapy.Field()
 
 
 class CommentsItem(scrapy.Item):

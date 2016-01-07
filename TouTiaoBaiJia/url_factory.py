@@ -1,6 +1,7 @@
 import urllib
 
 from constants import START_URL_PREFIX
+from constants import COMMENT_REQUEST_URL
 
 _PARAMS = {
     "c": "category",
@@ -22,6 +23,10 @@ def g_start_url(status, group, page):
     param["reader_group"] = group
     param["p"] = page
     return START_URL_PREFIX + urllib.urlencode(param)
+
+
+def g_comment_url():
+    pass
 
 
 if __name__ == "__main__":

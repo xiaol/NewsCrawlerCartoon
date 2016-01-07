@@ -10,8 +10,16 @@ import logging
 import base64
 import redis
 import requests
+from scrapy.exceptions import DropItem
 
-from TouTiaoBaiJia.items import ComicsItem, CommentsItem
+from TouTiaoBaiJia.items import CommentsItem
+from TouTiaoBaiJia.items import ComicsList, ChaptersItem
+from TouTiaoBaiJia.constants import STATIC_HIT, HIT
+from TouTiaoBaiJia.constants import COMIC_URLS_QUEUE
+from TouTiaoBaiJia.constants import CHAPTER_URLS_QUEUE
+from TouTiaoBaiJia.constants import STATUS
+from TouTiaoBaiJia.url_factory import g_start_url
+from TouTiaoBaiJia.utils import append_start_url
 from utils import rds
 # from settings import REDIS_HOST, REDIS_PORT, REDIS_DB, REDIS_PASSWORD
 
@@ -130,19 +138,75 @@ _logger = logging.getLogger(__name__)
 
 class DebugPipeline(object):
 
+    def __init__(self):
+        self.r = rds
+
     def process_item(self, item, spider):
-        cache = rds
+        if isinstance(item, ComicsList):
+            self.process_comics_list(item)
+        elif isinstance(item, ChaptersItem):
+            self.process_chapters_item(item)
+        elif isinstance(item, CommentsItem):
+            self.process_comments_item(item)
+        else:
+            pass
+
+    def process_comics_list(self, item):
+        total_page = item["total_page"]
+        current_page = item["current_page"]
+        group = item["group"]
+        status = item["status"]
+        comics = item["comics"]
+        pub_status = 1 if status == STATUS["complete"] else 0
+        for comic in comics:
+            comic["pub_status"] = pub_status
+            has_next_page = self.process_comics_item(comic)
+        # if has_next_page and current_page <= total_page:
+        #     url = g_start_url(status, group, current_page+1)
+        #     append_start_url(url, COMIC_URLS_QUEUE)
+
+    def process_comics_item(self, item):
+        """ store comic info in cache, then start crawl comics detail,comments """
+        comic = dict(item)
+        p_url = STATIC_HIT if item["mobile"] else HIT
+        p_url = p_url % item["comic_id"]
+        try:
+            response = requests.get(p_url)  # get popularity
+            comic["popularity"] = json.loads(response.content)["hot_hits"]
+        except:
+            _logger.warn("get popularity for %s failed" % comic["comic_url"])
+        url = comic["comic_url"]
+        status = self.r.hget(url, "pub_status")
+        if status == "1":   # complete crawled
+            _logger.debug("name: %s already crawled" % comic["name"])
+            return False
+        elif status == "0":     # todo: incomplete crawled
+            _logger.debug("name: %s incomplete crawled" % comic["name"])
+            return True
+        else:   # not crawled
+            _logger.debug("name: %s, url: %s" % (comic["name"], url))
+            self.r.hmset(url, comic)
+            append_start_url(url, CHAPTER_URLS_QUEUE)
+            return True
+
+    def process_chapters_item(self, item):
+        """ store chapter info in cache """
         chapter = dict(item)
-        comic = chapter["comic"]
-        comic["tags"] = json.dumps(comic["tags"])
-        chapter["images"] = json.dumps(chapter["images"])
-        del chapter["comic"]
-        for key, value in comic:
-            chapter[key] = value
-        if not cache.exists(comic["comic_url"]):
-            cache.hmset(comic["comic_url"], comic)
-        print("name: %s, chapter: %s" %
-              (comic["name"], chapter["chapter_name"]))
+        if not self.r.exists(chapter["comic_url"]):
+            raise DropItem("comic url changed")
+        comic = self.r.hgetall(chapter["comic_url"])
+        key = "||".join([chapter["comic_url"], chapter["chapter_url"]])
+        key = base64.encodestring(key).replace("=", "")
+        for k, v in comic.iteritems():
+            chapter[k] = v
+        self.r.hmset(key, chapter)
+        print("key: %s" % key)
+        for k, v in self.r.hgetall(key).iteritems():
+            print("%s: %s" % (k, v))
+
+    def process_comments_item(self, item):
+        pass
+
 
 
 
