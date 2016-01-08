@@ -146,7 +146,7 @@ class DebugPipeline(object):
             _logger.warn("get popularity for %s failed" % comic["comic_url"])
         _logger.info("name: %s, url: %s" % (comic["name"], url))
         self.r.hmset(url, comic)
-        self.r.hmset(url, self.day*7)
+        self.r.expire(url, self.day*7)
         append_start_url(url, CHAPTER_URLS_QUEUE)   # crawl chapters
         append_start_url(g_comment_url(comic["comic_id"]),
                          COMMENT_URLS_QUEUE)    # crawl comments
