@@ -117,24 +117,25 @@ class DebugPipeline(object):
         status = item["status"]
         comics = item["comics"]
         pub_status = 1 if status == STATUS["complete"] else 0
+        has_next_page = False
         for comic in comics:
             comic["pub_status"] = pub_status
             has_next_page = self.process_comics_item(comic)
-        if has_next_page and current_page <= total_page:
-            url = g_start_url(status, group, current_page+1)
-            append_start_url(url, COMIC_URLS_QUEUE)
+        # if has_next_page and current_page <= total_page:
+        #     url = g_start_url(status, group, current_page+1)
+        #     append_start_url(url, COMIC_URLS_QUEUE)
 
     def process_comics_item(self, item):
         """ store comic info in cache, then start crawl comics detail,comments """
         comic = dict(item)
         url = comic["comic_url"]
-        status = self.r.hget(url, "pub_status")
-        if status == "1":   # complete crawled
-            _logger.info("name: %s already crawled" % comic["name"])
-            return False
-        elif status == "0":     # todo: incomplete crawled
-            _logger.info("name: %s incomplete crawled" % comic["name"])
-            return True
+        # status = self.r.hget(url, "pub_status")
+        # if status == "1":   # complete crawled
+        #     _logger.info("name: %s already crawled" % comic["name"])
+        #     return False
+        # elif status == "0":     # todo: incomplete crawled
+        #     _logger.info("name: %s incomplete crawled" % comic["name"])
+        #     return True
         # if not crawled
         p_url = STATIC_HIT if item["mobile"] else HIT
         p_url = p_url % item["comic_id"]
