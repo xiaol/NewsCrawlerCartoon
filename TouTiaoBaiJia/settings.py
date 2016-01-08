@@ -107,6 +107,7 @@ REDIS_HOST = "ccd827d637514872.m.cnhza.kvstore.aliyuncs.com"
 REDIS_PORT = 6379
 REDIS_DB = 0
 REDIS_PASSWORD = "ccd827d637514872:LYcache2015"
+REDIS_URL = 'redis://ccd827d637514872:LYcache2015@ccd827d637514872.m.cnhza.kvstore.aliyuncs.com:6379'
 
 # POSTGRES = "postgresql://postgres:lee@localhost/test"
 
