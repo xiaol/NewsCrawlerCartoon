@@ -2,7 +2,7 @@
 
 import random
 from scrapy.downloadermiddlewares.useragent import UserAgentMiddleware
-from TouTiaoBaiJia.constants import CHAPTER_SPIDER_NAME
+from TouTiaoBaiJia.constants import CHAPTER_SPIDER_NAME, COMMENT_SPIDER_NAME
 
 
 class RotateUserAgentMiddleware(UserAgentMiddleware):
@@ -11,7 +11,7 @@ class RotateUserAgentMiddleware(UserAgentMiddleware):
         self.user_agent = user_agent
 
     def process_request(self, request, spider):
-        if spider.name == CHAPTER_SPIDER_NAME:
+        if spider.name == CHAPTER_SPIDER_NAME or spider.name == COMMENT_SPIDER_NAME:
             rua = random.choice(self.mobile_headers)
         else:
             rua = random.choice(self.pc_headers)

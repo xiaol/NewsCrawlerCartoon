@@ -25,8 +25,8 @@ def g_start_url(status, group, page):
     return START_URL_PREFIX + urllib.urlencode(param)
 
 
-def g_comment_url():
-    pass
+def g_comment_url(comic_id, page=1):
+    return COMMENT_REQUEST_URL % (comic_id, page)
 
 
 if __name__ == "__main__":

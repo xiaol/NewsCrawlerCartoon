@@ -34,8 +34,15 @@ STATUS = {
 
 COMIC_SPIDER_NAME = "dmzj_comic_spider"
 CHAPTER_SPIDER_NAME = "dmzj_chapter_spider"
-COMMENT_SPIDER_NAME = "dmzj_image_spider"
+COMMENT_SPIDER_NAME = "dmzj_comment_spider"
 
 COMIC_URLS_QUEUE = "{0}:{1}".format(COMIC_SPIDER_NAME, "start_urls")
 CHAPTER_URLS_QUEUE = "{0}:{1}".format(CHAPTER_SPIDER_NAME, "start_urls")
 COMMENT_URLS_QUEUE = "{0}:{1}".format(COMMENT_SPIDER_NAME, "start_urls")
+
+
+CHAPTER_STORE_URL = "http://api.deeporiginalx.com/bdp/spider/pipeline/comic/"
+COMMENT_STORE_URL = "http://api.deeporiginalx.com/bdp/comic/comment"
+
+
+

@@ -3,7 +3,6 @@ from urlparse import urlparse, parse_qs
 import re
 import logging
 
-from utils import rds
 from TouTiaoBaiJia.items import ComicsItem, ChaptersItem, ComicsDetail
 from TouTiaoBaiJia.constants import M_DOMAIN, M_DOMAIN_INFO, M_DOMAIN_VIEW
 from TouTiaoBaiJia.constants import DOMAIN, ABNORMAL_DOMAIN

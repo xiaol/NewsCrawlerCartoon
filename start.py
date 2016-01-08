@@ -3,7 +3,7 @@ from TouTiaoBaiJia.constants import STATUS
 from TouTiaoBaiJia.constants import CATEGORY
 from TouTiaoBaiJia.constants import CHAPTER_URLS_QUEUE
 from TouTiaoBaiJia.constants import COMIC_URLS_QUEUE
-from TouTiaoBaiJia.constants import IMAGE_URLS_QUEUE
+from TouTiaoBaiJia.constants import COMMENT_URLS_QUEUE
 from TouTiaoBaiJia.utils import append_start_url
 
 

@@ -13,7 +13,7 @@ class ComicsList(scrapy.Item):
     current_page = scrapy.Field()
     group = scrapy.Field()
     status = scrapy.Field()
-    comics = scrapy.Field()
+    comics = scrapy.Field()     # ComicsItem list
 
 
 class ComicsDetail(scrapy.Item):
@@ -22,6 +22,7 @@ class ComicsDetail(scrapy.Item):
     area_location = scrapy.Field()
     category = scrapy.Field()
     chapter_num = scrapy.Field()
+
     chapters = scrapy.Field()
 
 
@@ -37,12 +38,12 @@ class ComicsItem(scrapy.Item):
 
     tags = scrapy.Field()  # 体裁
     origin_name = scrapy.Field()     # 原名
+
     category = scrapy.Field()   # 分类标签
     area_location = scrapy.Field()   # 所属地域
     popularity = scrapy.Field()     # 人气
     summary = scrapy.Field()    # 简介
     chapter_num = scrapy.Field()
-    chapter = scrapy.Field()
 
     mobile = scrapy.Field()     # use mobile user agent or not
     last_chapter_url = scrapy.Field()   # last chapter url
@@ -53,13 +54,6 @@ class ChaptersItem(scrapy.Item):
     chapter_order = scrapy.Field()
     chapter_url = scrapy.Field()
     chapter_name = scrapy.Field()   # move name to chapter_name
-    images = scrapy.Field()
-
-    comic = scrapy.Field()  # add comic meta info
-
-
-class ImagesItem(scrapy.Item):
-    chapter_url = scrapy.Field()
     images = scrapy.Field()
 
 
