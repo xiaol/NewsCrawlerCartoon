@@ -100,8 +100,8 @@ class CommentSpider(spiders.RedisSpider):
         item["content"] = comment["content"]
         item["createtime"] = comment["createtime"]
         item["count_reply"] = comment["count_reply"]
-        item["up"] = comment["up"]
-        item["source"] = comment.get("source", "")
+        item["up"] = int(comment.get("up", 0))
+        item["source"] = int(comment.get("source", 0))
         item["place"] = comment.get("place", "")
         item["ip"] = comment.get("ip", "")
         item["source_name"] = comment.get("source_name", "")
