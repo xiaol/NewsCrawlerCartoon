@@ -29,72 +29,7 @@ from utils import rds
 _logger = logging.getLogger(__name__)
 
 
-# class RedisPipeline(object):
-#
-#     comic_url = "http://api.deeporiginalx.com/bdp/spider/pipeline/comic/"
-#     comment_url = "http://api.deeporiginalx.com/bdp/comic/comment"
-#
-#     def __init__(self):
-#         host = REDIS_HOST
-#         port = REDIS_PORT
-#         db = REDIS_DB
-#         password = REDIS_PASSWORD
-#         self.r = redis.Redis(host=host, port=port, db=db, password=password)
-#
-#     def process_item(self, item, spider):
-#         if isinstance(item, ComicsItem):
-#             self.store_chapters(item)
-#         elif isinstance(item, CommentsItem):
-#             self.store_comments(item)
-#         else:
-#             _logger.error("not support this item" % type(item))
-#
-#     def store_chapters(self, item):
-#         dict_item = dict(item)
-#         chapter = dict_item["chapter"]
-#         del dict_item["chapter"]
-#         for key, value in chapter.iteritems():
-#             dict_item[key] = value
-#         dict_item["tags"] = json.dumps(dict_item["tags"])
-#         dict_item["images"] = json.dumps(dict_item["images"])
-#         key = "||".join([dict_item["comic_url"], chapter["chapter_url"]])
-#         redis_name = base64.encodestring(key).replace('=', '')
-#         redis_value = dict_item
-#         self.r.hmset(redis_name, redis_value)
-#         self.r.expire(redis_name, 7*24*60*60)
-#         r = requests.get(url=self.comic_url+redis_name)
-#         if r.status_code != 200:
-#             _logger.error("code: %s, key: %" % (r.status_code, redis_name))
-#         else:
-#             _logger.info(redis_name)
-#
-#     def store_comments(self, item):
-#         comment = dict()
-#         comment["comicUrl"] = item["comic_url"]
-#         comment["commentId"] = item["comment_id"]
-#         comment["uid"] = item["uid"]
-#         comment["nickName"] = item["nickname"]
-#         comment["avatarUrl"] = item["avatar_url"]
-#         comment["pid"] = item["pid"]
-#         comment["comicId"] = item["comic_id"]
-#         comment["authorId"] = item["author_id"]
-#         comment["author"] = item["author"]
-#         comment["content"] = item["content"]
-#         comment["createTime"] = item["createtime"]
-#         comment["countReply"] = item["count_reply"]
-#         comment["up"] = item["up"]
-#         comment["source"] = item["source"]
-#         comment["place"] = item["place"]
-#         comment["ip"] = item["ip"]
-#         comment["sourceName"] = item["source_name"]
-#         r = requests.post(url=self.comment_url, json=comment)
-#         if r.status_code != 200:
-#             _logger.error("code: %s, %s" % (r.status_code, item["nickname"]))
-#         else:
-#             _logger.info("insert comment: %s" % item["nickname"])
-
-
-class DebugPipeline(object):
+class StorePipeline(object):
 
     def __init__(self):
         self.r = rds
@@ -121,21 +56,21 @@ class DebugPipeline(object):
         for comic in comics:
             comic["pub_status"] = pub_status
             has_next_page = self.process_comics_item(comic)
-        # if has_next_page and current_page <= total_page:
-        #     url = g_start_url(status, group, current_page+1)
-        #     append_start_url(url, COMIC_URLS_QUEUE)
+        if has_next_page and current_page <= total_page:
+            url = g_start_url(status, group, current_page+1)
+            append_start_url(url, COMIC_URLS_QUEUE)
 
     def process_comics_item(self, item):
         """ store comic info in cache, then start crawl comics detail,comments """
         comic = dict(item)
         url = comic["comic_url"]
-        # status = self.r.hget(url, "pub_status")
-        # if status == "1":   # complete crawled
-        #     _logger.info("name: %s already crawled" % comic["name"])
-        #     return False
-        # elif status == "0":     # todo: incomplete crawled
-        #     _logger.info("name: %s incomplete crawled" % comic["name"])
-        #     return True
+        status = self.r.hget(url, "pub_status")
+        if status == "1":   # complete crawled
+            _logger.info("name: %s already crawled" % comic["name"])
+            return False
+        elif status == "0":     # todo: incomplete crawled
+            _logger.info("name: %s incomplete crawled" % comic["name"])
+            return True
         # if not crawled
         p_url = STATIC_HIT if item["mobile"] else HIT
         p_url = p_url % item["comic_id"]

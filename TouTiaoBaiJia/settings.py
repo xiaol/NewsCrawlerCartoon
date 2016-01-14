@@ -67,7 +67,7 @@ DOWNLOAD_HANDLERS = {'s3': None}
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     # 'scrapy.pipelines.images.ImagesPipeline': 1,
-    'TouTiaoBaiJia.pipelines.DebugPipeline': 500,
+    'TouTiaoBaiJia.pipelines.StorePipeline': 500,
     # 'TouTiaoBaiJia.pipelines.RedisPipeline': 400,
 }
 # IMAGES_STORE = "/Users/lee/work/downloads/comics"
