@@ -56,9 +56,9 @@ class StorePipeline(object):
         for comic in comics:
             comic["pub_status"] = pub_status
             has_next_page = self.process_comics_item(comic)
-        if has_next_page and current_page <= total_page:
-            url = g_start_url(status, group, current_page+1)
-            append_start_url(url, COMIC_URLS_QUEUE)
+        # if has_next_page and current_page <= total_page:
+        #     url = g_start_url(status, group, current_page+1)
+        #     append_start_url(url, COMIC_URLS_QUEUE)
 
     def process_comics_item(self, item):
         """ store comic info in cache, then start crawl comics detail,comments """
